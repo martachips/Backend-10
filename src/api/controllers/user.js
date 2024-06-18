@@ -67,12 +67,20 @@ const logIn = async (req, res, next) => {
         .json(`User with email ${email} could not be found`);
     }
 
-    if (bcrypt.compareSync(password, user.password)) {
-      const token = generateSign(user._id);
-      return res.status(200).json({ token, user });
-    } else {
+    const validPassword = bcrypt.compareSync(password, user.password);
+
+    // if (bcrypt.compareSync(password, user.password)) {
+    //   const token = generateSign(user._id);
+    //   return res.status(200).json({ token, user });
+    // } else {
+    //   return res.status(400).json('User or password incorrect');
+    // }
+    if (!validPassword) {
       return res.status(400).json('User or password incorrect');
     }
+
+    const token = generateSign(user._id);
+    return res.status(200).json({ token, user });
   } catch (error) {
     console.log(error);
     return res.status(400).json('Request error', error);
