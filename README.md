@@ -1,16 +1,20 @@
 USERS
 · Podrán entrar y registrarse / iniciar sesión
-· Podrán crear eventos así como modificarlos
+· Podrán crear eventos
 · Podrán modificar su propio perfil y ver a qué eventos asisten y cuáles han creado
-· Podrán ver el número de asistentes a un evento
 · Y podrán confirmar su asistencia a un evento
+· NO podrán ver aquellos eventos que el ADMIN no haya validado.
+
+ADMINISTRADOR
+· A diferencia de los Usuarios, Validará y podrá modificar los eventos. Hasta que no valide el evento, éste no aparecerá para los usuarios.
 
 EVENTS
-· Contendrán tanto los usuarios registrados como asistentes sin registro confirmados
+· Al acceder a "Mostrar más" en cada evento, aparecen los detalles así como la opción de Asistir a estos.
 
 ATTENDANTS
-· Sólo podrán ver los eventos y el número total de asistentes y confirmar su asistencia
-· Pero no podrán crear ni modificar eventos
+· Sólo podrán ver los eventos confirmar su asistencia
+· No podrán crear ni modificar eventos
+· Recibirán un correo cuando se confirme asistencia a un evento (mediante Nodemailer)
 
 ORIGEN: http://localhost:3000/api/v1
 
@@ -20,7 +24,7 @@ Attendants:
 
 - GET - getAttendantsById - /attendants/:id
 - GET - getattendants - /attendants/
-- POST - confirmAssistance - /event/:eventId/attendance/confirm
+- POST - confirmAssistance - /events/:eventId/attendance/confirm
 
 Events:
 
@@ -30,7 +34,7 @@ Events:
 - POST - createEvent - /event/createEvent - isAuth - uploadImg("events")
 - PUT - validateEvent - /event/validate/:id - isAdmin
 - PUT - updateEvent - /event/update/:id - isAuth - uploadImg("events")
-- DELETE - deleteEvent - /event/:id - isAdmin
+- DELETE - deleteEvent - /event/:eventId/delete - isAdmin
 
 Users:
 
@@ -38,7 +42,11 @@ Users:
 - GET - getUserById - /user/:id - isAuth
 - POST - register - /user/register
 - POST - login - /user/login
-- PUT - updateUser - /user/:id - isAuth - uploadImg("users")
+- PUT - updateUser - /user/update/:id - isAuth - uploadImg("users")
 - POST - confirmAssistance - /user/events/:eventId/attendance/confirm - isAuth
 - DELETE - deleteUser - /user/delete/:id - isAdmin
+
 # Backend-10
+
+…—
+…—
