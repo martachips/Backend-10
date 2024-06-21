@@ -60,8 +60,12 @@ const confirmAssistance = async (req, res, next) => {
 
         await attendant.save();
 
-        user.eventsToAttend.addToSet(eventId);
-        await user.save();
+        // user.eventsToAttend.addToSet(eventId);
+        // await user.save(user._id); //! esto lo que hacía era crear otro usuario nuevo
+
+        await user.findByIdAndUpdate(user._id, {
+          $push: { eventsToAttend: eventId }
+        });
 
         await Event.findByIdAndUpdate(
           eventId,
