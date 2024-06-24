@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const Attendant = require('../models/attendant');
 const Event = require('../models/event');
+const { transporter } = require('../../utils/nodemail');
 
 const getAttendants = async (req, res, next) => {
   try {
@@ -93,6 +94,20 @@ const confirmAssistance = async (req, res, next) => {
           { $addToSet: { confirmedAttendants: newAttendant._id } },
           { new: true }
         );
+
+        const mail = {
+          from: 'martachips2@gmail.com',
+          to: email,
+          subject: 'Asistencia confirmada',
+          text: `Gracias por confirmar tu asistencia al evento`,
+          html: `
+            <h4>¡Gracias por confirmar tu asistencia, ${name}!</h4>
+            <p>Espérate sentad@ porque se va a liar parda</p>
+          `
+        };
+
+        const mailSending = await transporter.sendMail(mail);
+        console.log('email sent', mailSending.response);
 
         return res
           .status(200)
