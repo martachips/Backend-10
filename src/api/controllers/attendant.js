@@ -55,11 +55,15 @@ const confirmAssistance = async (req, res, next) => {
             email: req.user.email,
             confirmedEvents: [eventId]
           });
-        } else {
-          attendant.confirmedEvents.addToSet(eventId);
         }
+        // else {
+        //   attendant.confirmedEvents.addToSet(eventId);
+        // }
 
-        await attendant.save();
+        await Attendant.findByIdAndUpdate(attendant._id, {
+          $push: { confirmedEvents: eventId }
+        });
+        console.log(`Attendant saved: ${attendant}`);
 
         // user.eventsToAttend.addToSet(eventId);
         // await user.save(user._id); //! esto lo que hacía era crear otro usuario nuevo
@@ -89,6 +93,7 @@ const confirmAssistance = async (req, res, next) => {
           confirmedEvents: [eventId]
         });
         await newAttendant.save();
+
         await Event.findByIdAndUpdate(
           eventId,
           { $addToSet: { confirmedAttendants: newAttendant._id } },
@@ -102,7 +107,7 @@ const confirmAssistance = async (req, res, next) => {
           text: `Gracias por confirmar tu asistencia al evento`,
           html: `
             <h4>¡Gracias por confirmar tu asistencia, ${name}!</h4>
-            <p>Espérate sentad@ porque se va a liar parda</p>º
+            <p>Espérate sentad@ porque se va a liar parda</p>
           `
         };
 
