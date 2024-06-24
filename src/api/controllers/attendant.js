@@ -102,7 +102,7 @@ const confirmAssistance = async (req, res, next) => {
           text: `Gracias por confirmar tu asistencia al evento`,
           html: `
             <h4>¡Gracias por confirmar tu asistencia, ${name}!</h4>
-            <p>Espérate sentad@ porque se va a liar parda</p>
+            <p>Espérate sentad@ porque se va a liar parda</p>º
           `
         };
 

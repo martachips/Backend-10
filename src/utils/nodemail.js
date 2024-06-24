@@ -5,7 +5,7 @@ export const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: 'martachips2@gmail.com',
-    pass: 'syubpcjidqeptxjp'
+    user: process.env.NODEMAILER_USER,
+    pass: process.env.NODEMAILER_PASS
   }
 });
