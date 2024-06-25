@@ -100,8 +100,8 @@ const confirmAssistance = async (req, res, next) => {
           { new: true }
         );
 
-        const mail = {
-          from: 'martachips2@gmail.com',
+        let mail = {
+          from: process.env.NODEMAILER_USER,
           to: email,
           subject: 'Asistencia confirmada',
           text: `Gracias por confirmar tu asistencia al evento`,
@@ -110,8 +110,19 @@ const confirmAssistance = async (req, res, next) => {
             <p>Espérate sentad@ porque se va a liar parda</p>
           `
         };
+        let createTransport = nodemailer.createTransport(mail);
 
-        const mailSending = await transporter.sendMail(mail);
+        let mailSending = await createTransport.sendMail(
+          mail,
+          (error, info) => {
+            if (error) {
+              console.log('Error al enviar el email');
+            } else {
+              console.log('Correo enviado correctamente');
+            }
+            createTransport.close();
+          }
+        );
         console.log('email sent', mailSending.response);
 
         return res
