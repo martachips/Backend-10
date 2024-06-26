@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const Attendant = require('../models/attendant');
 const Event = require('../models/event');
-const { transporter } = require('../../utils/nodemail');
+const confirmAttendanceEmail = require('./utils/sendEmail/sendEmail.js');
 
 const getAttendants = async (req, res, next) => {
   try {
@@ -40,102 +40,94 @@ const confirmAssistance = async (req, res, next) => {
         .json({ message: 'This user is already confirmed in this event' });
     }
 
-    try {
-      if (req.user) {
-        const user = await User.findById(req.user._id);
-        if (!user) {
-          return res.status(404).json({ message: 'User not found' });
-        }
-
-        let attendant = await Attendant.findOne({ email: req.user.email });
-
-        if (!attendant) {
-          attendant = new Attendant({
-            name: req.user.name,
-            email: req.user.email,
-            confirmedEvents: [eventId]
-          });
-        }
-        // else {
-        //   attendant.confirmedEvents.addToSet(eventId);
-        // }
-
-        await Attendant.findByIdAndUpdate(attendant._id, {
-          $push: { confirmedEvents: eventId }
-        });
-        console.log(`Attendant saved: ${attendant}`);
-
-        // user.eventsToAttend.addToSet(eventId);
-        // await user.save(user._id); //! esto lo que hacía era crear otro usuario nuevo
-
-        await User.findByIdAndUpdate(user._id, {
-          $push: { eventsToAttend: eventId }
-        });
-
-        await Event.findByIdAndUpdate(
-          eventId,
-          {
-            $addToSet: { confirmedAttendants: attendant._id }
-          },
-          { new: true }
-        );
-
-        console.log(`Updated user: ${user._id} with event: ${eventId}`);
-        console.log('User eventsToAttend:', user.eventsToAttend);
-
-        return res
-          .status(200)
-          .json({ message: `Assistance confirmed succesfully`, attendant });
-      } else {
-        const newAttendant = new Attendant({
-          name,
-          email,
-          confirmedEvents: [eventId]
-        });
-        await newAttendant.save();
-
-        await Event.findByIdAndUpdate(
-          eventId,
-          { $addToSet: { confirmedAttendants: newAttendant._id } },
-          { new: true }
-        );
-
-        let mail = {
-          from: process.env.NODEMAILER_USER,
-          to: email,
-          subject: 'Asistencia confirmada',
-          text: `Gracias por confirmar tu asistencia al evento`,
-          html: `
-            <h4>¡Gracias por confirmar tu asistencia, ${name}!</h4>
-            <p>Espérate sentad@ porque se va a liar parda</p>
-          `
-        };
-        let createTransport = nodemailer.createTransport(mail);
-
-        let mailSending = await createTransport.sendMail(
-          mail,
-          (error, info) => {
-            if (error) {
-              console.log('Error al enviar el email');
-            } else {
-              console.log('Correo enviado correctamente');
-            }
-            createTransport.close();
-          }
-        );
-        console.log('email sent', mailSending.response);
-
-        return res
-          .status(200)
-          .json({ message: 'Assistance confirmed successfully', newAttendant });
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Error confirming attendance' });
+    if (req.user) {
+      await confirmAuthenticatedUser(req.user, eventId, res);
+    } else {
+      await confirmNewAttendant(name, email, eventId, res);
     }
+
+    confirmAttendanceEmail(name, eventId);
   } catch (error) {
-    console.log(error);
-    return res.status(400).json('Error confirming attendance', error);
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: 'Error confirming attendance', error });
+  }
+};
+
+const confirmAuthenticatedUser = async (user, eventId, res) => {
+  try {
+    const existingUser = await User.findById(user._id);
+
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let attendant = await Attendant.findOne({ email: user.email });
+
+    if (!attendant) {
+      attendant = new Attendant({
+        name: user.name,
+        email: user.email,
+        confirmedEvents: [eventId]
+      });
+    } else {
+      await Attendant.findByIdAndUpdate(attendant._id, {
+        $push: { confirmedEvents: eventId }
+      });
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+      $push: { eventsToAttend: eventId }
+    });
+
+    await updateEventWithAttendant(eventId, attendant._id);
+    console.log(`Updated user: ${user._id} with event: ${eventId}`);
+    console.log('User eventsToAttend:', existingUser.eventsToAttend);
+
+    return res
+      .status(200)
+      .json({ message: 'Assistance confirmed successfully', attendant });
+  } catch (error) {
+    console.error('Error confirming authenticated user', error);
+    return res
+      .status(500)
+      .json({ message: 'Error confirming authenticated user', error });
+  }
+};
+
+const confirmNewAttendant = async (name, email, eventId, res) => {
+  try {
+    const newAttendant = new Attendant({
+      name,
+      email,
+      confirmedEvents: [eventId]
+    });
+
+    await newAttendant.save();
+    await updateEventWithAttendant(eventId, newAttendant._id);
+
+    return res
+      .status(200)
+      .json({ message: 'Assistance confirmed successfully', newAttendant });
+  } catch (error) {
+    console.error('Error confirming new attendant', error);
+    return res
+      .status(500)
+      .json({ message: 'Error confirming new attendant', error });
+  }
+};
+
+const updateEventWithAttendant = async (eventId, attendantId) => {
+  try {
+    await Event.findByIdAndUpdate(
+      eventId,
+      { $addToSet: { confirmedAttendants: attendantId } },
+      { new: true }
+    );
+  } catch (error) {
+    console.error('Error updating event with attendant: ', error);
+    throw new Error('Error updating event');
   }
 };
 
