@@ -1,5 +1,4 @@
 const sendMail = require('./nodemail.js');
-import './sendEmail.css';
 
 const confirmAttendanceEmail = async ({ user, event }) => {
   const htmlContent = `
