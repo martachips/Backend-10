@@ -1,4 +1,4 @@
-const sendMail = require('./nodemail');
+const sendMail = require('./nodemail.js');
 import './sendEmail.css';
 
 const confirmAttendanceEmail = async ({ user, event }) => {

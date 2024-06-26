@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const Attendant = require('../models/attendant');
 const Event = require('../models/event');
-const confirmAttendanceEmail = require('./utils/sendEmail/sendEmail.js');
+const confirmAttendanceEmail = require('../../utils/sendEmail/sendEmail');
 
 const getAttendants = async (req, res, next) => {
   try {
