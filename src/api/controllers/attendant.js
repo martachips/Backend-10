@@ -118,7 +118,7 @@ const confirmNewAttendant = async (name, email, eventId, res) => {
 
     return res
       .status(200)
-      .json({ message: 'Assistance confirmed successfully', newAttendant });
+      .json({ message: 'Assistance confirmed successfully' });
   } catch (error) {
     console.error('Error confirming new attendant', error);
     return res
