@@ -18,13 +18,13 @@ const sendMail = async (to, subject, htmlContent) => {
     html: htmlContent
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error(`Error: ${error}`);
-    } else {
-      console.log(`Email enviado a ${info.response}`);
-    }
-  });
+  try {
+    let info = transporter.sendMail(mailOptions);
+    console.log(`Email sent: ${info.response}`);
+  } catch (error) {
+    console.error(`Error sending email: ${error}`);
+    throw error;
+  }
 };
 
 module.exports = sendMail;

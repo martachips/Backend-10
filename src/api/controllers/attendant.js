@@ -45,8 +45,9 @@ const confirmAssistance = async (req, res, next) => {
     } else {
       await confirmNewAttendant(name, email, eventId, res);
     }
-
-    confirmAttendanceEmail(name, eventId);
+    console.log('Calling function to send email');
+    confirmAttendanceEmail(req.user || { name, email }, eventId);
+    console.log('Email confirmation sent');
   } catch (error) {
     console.error(error);
     return res
