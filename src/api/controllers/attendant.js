@@ -99,13 +99,21 @@ const confirmAuthenticatedUser = async (user, eventId, res) => {
 
 const confirmNewAttendant = async (name, email, eventId, res) => {
   try {
-    const newAttendant = new Attendant({
-      name,
-      email,
-      confirmedEvents: [eventId]
-    });
+    let attendant = await Attendant.findOne({ email });
 
-    await newAttendant.save();
+    if (!attendant) {
+      attendant = new Attendant({
+        name,
+        email,
+        confirmedEvents: [eventId]
+      });
+      await Attendant.save();
+    } else {
+      await Attendant.findByIdAndUpdate(attendant._id, {
+        $push: { confirmedEvents: eventId }
+      });
+    }
+
     await updateEventWithAttendant(eventId, newAttendant._id);
 
     return res
