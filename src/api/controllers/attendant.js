@@ -114,7 +114,7 @@ const confirmNewAttendant = async (name, email, eventId, res) => {
       });
     }
 
-    await updateEventWithAttendant(eventId, newAttendant._id);
+    await updateEventWithAttendant(eventId, attendant._id);
 
     return res
       .status(200)
