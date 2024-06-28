@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const Attendant = require('../models/attendant');
 const Event = require('../models/event');
-const confirmAttendanceEmail = require('../../utils/sendEmail/sendEmail');
+// const confirmAttendanceEmail = require('../../utils/sendEmail/sendEmail');
 
 const getAttendants = async (req, res, next) => {
   try {
@@ -45,9 +45,9 @@ const confirmAssistance = async (req, res, next) => {
     } else {
       await confirmNewAttendant(name, email, eventId, res);
     }
-    console.log('Calling function to send email');
-    confirmAttendanceEmail(req.user || { name, email }, eventId);
-    console.log('Email confirmation sent');
+    // console.log('Calling function to send email');
+    // confirmAttendanceEmail(req.user || { name, email }, eventId);
+    // console.log('Email confirmation sent');
   } catch (error) {
     console.error(error);
     return res
