@@ -76,6 +76,7 @@ const confirmAuthenticatedUser = async (user, eventId, res) => {
         email: user.email,
         confirmedEvents: [eventId]
       });
+      await attendant.save();
     } else {
       await Attendant.findByIdAndUpdate(attendant._id, {
         $push: { confirmedEvents: eventId }
@@ -87,6 +88,8 @@ const confirmAuthenticatedUser = async (user, eventId, res) => {
     });
 
     await updateEventWithAttendant(eventId, attendant._id);
+
+    const updatedUser = await User.findById(user._id);
     console.log(`Updated user: ${user._id} with event: ${eventId}`);
     console.log('User eventsToAttend:', existingUser.eventsToAttend);
 
@@ -111,7 +114,7 @@ const confirmNewAttendant = async (name, email, eventId, res) => {
         email,
         confirmedEvents: [eventId]
       });
-      await Attendant.save();
+      await attendant.save();
     } else {
       await Attendant.findByIdAndUpdate(attendant._id, {
         $push: { confirmedEvents: eventId }
