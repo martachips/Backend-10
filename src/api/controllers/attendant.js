@@ -47,7 +47,7 @@ const confirmAssistance = async (req, res, next) => {
     }
 
     console.log('Calling function to send email');
-    confirmAttendanceEmail(req.user || { name, email }, eventId);
+    await confirmAttendanceEmail(req.user || { name, email }, eventId);
     console.log('Email confirmation sent');
 
     return res
@@ -94,9 +94,9 @@ const confirmAuthenticatedUser = async (user, eventId, res) => {
     console.log(`Updated user: ${user._id} with event: ${eventId}`);
     console.log('User eventsToAttend:', existingUser.eventsToAttend);
 
-    return res
-      .status(200)
-      .json({ message: 'Assistance confirmed successfully', attendant });
+    // return res
+    //   .status(200)
+    //   .json({ message: 'Assistance confirmed successfully', attendant });
   } catch (error) {
     console.error('Error confirming authenticated user', error);
     return res
@@ -124,9 +124,9 @@ const confirmNewAttendant = async (name, email, eventId, res) => {
 
     await updateEventWithAttendant(eventId, attendant._id);
 
-    return res
-      .status(200)
-      .json({ message: 'Assistance confirmed successfully' });
+    // return res
+    //   .status(200)
+    //   .json({ message: 'Assistance confirmed successfully' });
   } catch (error) {
     console.error('Error confirming new attendant', error);
     return res
